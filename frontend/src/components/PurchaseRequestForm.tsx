@@ -1,46 +1,61 @@
-
+// Formulário de Solicitação de Compras
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, ShoppingCart } from 'lucide-react';
+import { ShoppingCart, PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface PurchaseRequestFormProps {
-  user: { name: string; email: string };
+  user: { id: string; name: string};
+}
+
+interface Item {
+  product: string;
+  quantity: string;
+  needDate: string;
+  costCenter: string;
+  observations: string;
+  apportionment: string;
 }
 
 const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
-  const [formData, setFormData] = useState({
-    product: '',
-    quantity: '',
-    needDate: '',
-    observations: '',
-    justification: '',
-    supplier: '',
-    estimatedValue: ''
-  });
+  const [items, setItems] = useState<Item[]>([
+    { product: '', quantity: '', needDate: '', costCenter: '', observations: '', apportionment: '' }
+  ]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const handleItemChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setItems(prev => prev.map((item, i) => i === index ? { ...item, [name]: value } : item));
+  };
+
+  const handleAddItem = () => {
+    setItems(prev => [...prev, { product: '', quantity: '', needDate: '', costCenter: '', observations: '', apportionment: '' }]);
+  };
+
+  const handleRemoveItem = (index: number) => {
+    setItems(prev => prev.length === 1 ? prev : prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Aqui você faria a chamada para sua API REST do ERP
       const response = await fetch('/api/erp/purchase-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // Token de autenticação
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
-          ...formData,
+          items,
           requester: user.name,
-          requesterEmail: user.email,
+          requesterId: user.id,
           type: 'compras',
           status: 'pendente',
           requestDate: new Date().toISOString()
@@ -50,51 +65,26 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
       if (response.ok) {
         toast({
           title: "Solicitação de Compra Criada!",
-          description: "Sua solicitação foi enviada para o ERP com sucesso.",
+          description: "Sua solicitação foi registrada com sucesso.",
         });
-        
-        // Limpar formulário
-        setFormData({
-          product: '',
-          quantity: '',
-          needDate: '',
-          observations: '',
-          justification: '',
-          supplier: '',
-          estimatedValue: ''
-        });
+        setItems([{ product: '', quantity: '', needDate: '', costCenter: '', observations: '', apportionment: '' }]);
       } else {
         throw new Error('Erro ao enviar solicitação');
       }
     } catch (error) {
       console.error('Erro:', error);
-      // Para demonstração, simular sucesso
       toast({
         title: "Solicitação de Compra Criada!",
         description: "Sua solicitação foi registrada no sistema (modo demonstração).",
       });
-      
-      setFormData({
-        product: '',
-        quantity: '',
-        needDate: '',
-        observations: '',
-        justification: '',
-        supplier: '',
-        estimatedValue: ''
-      });
+      setItems([{ product: '', quantity: '', needDate: '', costCenter: '', observations: '', apportionment: '' }]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
   return (
-    <Card className="max-w-4xl mx-auto">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <ShoppingCart className="h-6 w-6 text-blue-600" />
@@ -103,102 +93,109 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="product">Produto/Serviço *</Label>
-              <Input
-                id="product"
-                name="product"
-                placeholder="Descreva o produto ou serviço"
-                value={formData.product}
-                onChange={handleChange}
-                required
-              />
-            </div>
+          <div className="space-y-4">
+            {items.map((item, idx) => (
+              <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end border p-4 rounded-md bg-gray-50 relative">
 
-            <div className="space-y-2">
-              <Label htmlFor="quantity">Quantidade *</Label>
-              <Input
-                id="quantity"
-                name="quantity"
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                value={formData.quantity}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="needDate">Data de Necessidade *</Label>
-              <Input
-                id="needDate"
-                name="needDate"
-                type="date"
-                value={formData.needDate}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="estimatedValue">Valor Estimado</Label>
-              <Input
-                id="estimatedValue"
-                name="estimatedValue"
-                type="number"
-                step="0.01"
-                placeholder="R$ 0,00"
-                value={formData.estimatedValue}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="supplier">Fornecedor Sugerido</Label>
-              <Input
-                id="supplier"
-                name="supplier"
-                placeholder="Nome do fornecedor (opcional)"
-                value={formData.supplier}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Solicitante</Label>
-              <Input value={user.name} disabled className="bg-gray-50" />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="justification">Justificativa *</Label>
-            <Textarea
-              id="justification"
-              name="justification"
-              placeholder="Justifique a necessidade desta compra..."
-              value={formData.justification}
-              onChange={handleChange}
-              rows={3}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="observations">Observações</Label>
-            <Textarea
-              id="observations"
-              name="observations"
-              placeholder="Informações adicionais..."
-              value={formData.observations}
-              onChange={handleChange}
-              rows={3}
-            />
+                <div className="grid grid-cols-1 md:grid-cols-11 md:col-span-11 gap-4">
+                  
+                  <div className="md:col-span-7 space-y-2">
+                    <Label htmlFor={`product-${idx}`}>Produto/Serviço</Label>
+                    <Input
+                      id={`product-${idx}`}
+                      name="product"
+                      placeholder="Descreva o produto ou serviço"
+                      value={item.product}
+                      onChange={e => handleItemChange(idx, e)}
+                      required
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor={`quantity-${idx}`}>Quantidade</Label>
+                    <Input
+                      id={`quantity-${idx}`}
+                      name="quantity"
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={item.quantity}
+                      onChange={e => handleItemChange(idx, e)}
+                      required
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor={`needDate-${idx}`}>Data de Necessidade</Label>
+                    <Input
+                      id={`needDate-${idx}`}
+                      name="needDate"
+                      type="date"
+                      value={item.needDate}
+                      onChange={e => handleItemChange(idx, e)}
+                      required
+                    />
+                  </div>
+                  <div className="md:col-span-4 space-y-2">
+                    <Label htmlFor={`costCenter-${idx}`}>Centro de Custo</Label>
+                    <Textarea
+                      id={`costCenter-${idx}`}
+                      name="costCenter"
+                      placeholder="Selecione um centro de custo"
+                      value={item.costCenter}
+                      onChange={e => handleItemChange(idx, e)}
+                      rows={2}
+                      required
+                    />
+                  </div>
+                  <div className="md:col-span-4 space-y-2">
+                    <Label htmlFor={`apportionment-${idx}`}>Rateio</Label>
+                    <Textarea
+                      id={`apportionment-${idx}`}
+                      name="apportionment"
+                      placeholder="Selecione um rateio"
+                      value={item.apportionment}
+                      onChange={e => handleItemChange(idx, e)}
+                      rows={2}
+                      required
+                    />
+                  </div>
+                  <div className="md:col-span-3 space-y-2">
+                    <Label htmlFor={`observations-${idx}`}>Observações</Label>
+                    <Textarea
+                      id={`observations-${idx}`}
+                      name="observations"
+                      placeholder="Informações adicionais..."
+                      value={item.observations}
+                      onChange={e => handleItemChange(idx, e)}
+                      rows={2}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 p-4 h-full">
+                <div className="col-span-1 md:col-span-2 flex items-center justify-center">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className="h-10"
+                      onClick={() => handleRemoveItem(idx)}
+                      disabled={items.length === 1}
+                      title="Remover item"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <Button type="button" variant="outline" onClick={handleAddItem} className="mt-2 flex items-center gap-2">
+              <PlusCircle className="w-5 h-5" /> Adicionar Item
+            </Button>
           </div>
 
           <div className="flex justify-end space-x-4">
-            <Button type="button" variant="outline">
+            <Button type="button" variant="outline" onClick={() => {
+              setItems([{ product: '', quantity: '', needDate: '', costCenter: '', observations: '', apportionment: ''}]);
+            }}>
               Cancelar
             </Button>
             <Button 

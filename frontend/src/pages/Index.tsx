@@ -7,7 +7,7 @@ import Header from '@/components/Header';
 import RequestsTable from '@/components/RequestsTable';
 import PurchaseRequestForm from '@/components/PurchaseRequestForm';
 import WarehouseRequestForm from '@/components/WarehouseRequestForm';
-import UserRegistrationForm from '@/components/UserRegistrationForm';
+// import UserRegistrationForm from '@/components/UserRegistrationForm';
 
 interface User {
   id: number;
@@ -38,27 +38,27 @@ const Index = () => {
       
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="requests" className="flex items-center space-x-2">
-              <List className="h-4 w-4" />
+              <List className="h-3 w-3" />
               <span className="hidden sm:inline">Lista de Solicitações</span>
               <span className="sm:hidden">Lista</span>
             </TabsTrigger>
             <TabsTrigger value="purchase" className="flex items-center space-x-2">
-              <ShoppingCart className="h-4 w-4" />
-              <span className="hidden sm:inline">Nova Solicitação de Compras</span>
+              <ShoppingCart className="h-3 w-3" />
+              <span className="hidden sm:inline">Solicitação de Compras</span>
               <span className="sm:hidden">Compras</span>
             </TabsTrigger>
             <TabsTrigger value="warehouse" className="flex items-center space-x-2">
-              <Package className="h-4 w-4" />
+              <Package className="h-3 w-3" />
               <span className="hidden sm:inline">Solicitação ao Almoxarifado</span>
               <span className="sm:hidden">Almoxarifado</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center space-x-2">
-              <UserPlus className="h-4 w-4" />
+            {/* <TabsTrigger value="users" className="flex items-center space-x-2">
+              <UserPlus className="h-3 w-3" />
               <span className="hidden sm:inline">Cadastrar Usuário</span>
               <span className="sm:hidden">Usuários</span>
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="requests" className="space-y-4">
@@ -73,9 +73,9 @@ const Index = () => {
             <WarehouseRequestForm user={user} />
           </TabsContent>
 
-          <TabsContent value="users" className="space-y-4">
+          {/* <TabsContent value="users" className="space-y-4">
             <UserRegistrationForm />
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </div>
     </div>

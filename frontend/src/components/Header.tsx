@@ -10,9 +10,12 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
   return (
-    <header className="bg-blue-600 text-white shadow-lg">
+    <header className="bg-[#0d4b28] text-white shadow-lg">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Sistema de Solicitações</h1>
+        <div className="flex items-center space-x-4">
+          <img src="/logo.png" alt="Logo" className="h-10 w-auto" />
+          <h1 className="text-2xl font-bold">Sistema de Solicitações</h1>
+        </div>
         {user && (
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
@@ -23,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
               variant="outline" 
               size="sm" 
               onClick={onLogout}
-              className="bg-white text-blue-600 hover:bg-blue-50"
+              className="bg-white text-red-600 hover:bg-red-300"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sair

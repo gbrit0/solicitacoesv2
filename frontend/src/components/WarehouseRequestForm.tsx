@@ -95,7 +95,7 @@ const WarehouseRequestForm: React.FC<WarehouseRequestFormProps> = ({ user }) => 
   };
 
   return (
-    <Card className="max-w-4xl mx-auto">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Package className="h-6 w-6 text-purple-600" />

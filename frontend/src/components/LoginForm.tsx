@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,7 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
+  const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -27,7 +26,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ usuario, password }),
       });
 
       if (response.ok) {
@@ -46,7 +45,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
       const mockUser = {
         id: 1,
         name: 'Gabriel Brito Ribeiro',
-        email: email || 'usuario@exemplo.com'
+        email: usuario || 'usuario@exemplo.com'
       };
       onLogin(mockUser);
       toast({
@@ -59,24 +58,28 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen flex items-center justify-center bg-[#0d4b28]">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center text-blue-700">Sistema de Solicitações</CardTitle>
+        <div className="flex items-center justify-center w-full space-x-4">
+          <img src="/logo.png" alt="Logo" className="h-10 w-auto" />
+          <CardTitle className="text-2xl text-center text-green-700">Sistema de Solicitações</CardTitle>
+          {/* <h1 className="text-2xl font-bold">Sistema de Solicitações</h1> */}
+        </div>
           <CardDescription className="text-center">
-            Faça login para acessar o sistema
+            Faça login com as credenciais do GLPI para acessar o sistema
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="usuario">Usuário</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="usuario"
+                type="text"
+                placeholder="joao.silva"
+                value={usuario}
+                onChange={(e) => setUsuario(e.target.value)}
                 required
               />
             </div>
@@ -93,7 +96,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
+            <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={loading}>
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </CardFooter>

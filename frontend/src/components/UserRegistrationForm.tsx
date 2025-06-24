@@ -104,7 +104,8 @@ const UserRegistrationForm: React.FC = () => {
   };
 
   return (
-    <Card className="max-w-4xl mx-auto">
+    // <Card className="max-w-4xl mx-auto">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <UserPlus className="h-6 w-6 text-green-600" />
