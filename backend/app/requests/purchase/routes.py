@@ -1,34 +1,17 @@
 import httpx
-import os
 
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from fastapi.responses import JSONResponse
 from typing import Annotated
-from dotenv import load_dotenv
 
 from app.schemas import TokenData
 from app.jwt import get_current_user
-from app.protheus_auth import login_protheus, refresh_protheus_token
-
-load_dotenv(override=True)
 
 purchase_router = APIRouter(prefix='/purchase')
 
-PROTHEUS_API_URL = os.getenv("PROTHEUS_API_URL")
-
-# --- Endpoint Protegido de Exemplo ---
-# @app.get("/users/me")
-# async def read_users_me(
-#     current_user: Annotated[TokenData, Depends(get_current_user)]
-# ):
-#     """
-#     Um endpoint que só pode ser acessado com um token JWT válido gerado pela nossa API.
-#     """
-#     return {"username": current_user.username, "message": "Bem-vindo ao seu perfil!"}
-
 @purchase_router.get("", summary="Retorna as solicitações de compras")
 async def get_purchase_requests(
-   current_user: Annotated[TokenData, Depends(get_current_user)],
+   _: Annotated[TokenData, Depends(get_current_user)],
    codSolicitacao: Annotated[
                      str | None,
                      Query(
@@ -65,9 +48,7 @@ async def get_purchase_requests(
                   description="Data final da busca no formato AAAAMMDD",
                   example=20250629
                )
-               ] = None,
-   auth = None,
-   retry: int = 0
+               ] = None
 ):
    """
    Obtém as solicitações de acordo com os parâmetros passados.
@@ -85,53 +66,26 @@ async def get_purchase_requests(
       if dataFim is not None:
          params["dataFim"] = dataFim
 
-      if not auth:
-         auth = await login_protheus()
-
-      bearer_token = auth["access_token"]
-      headers = {"Authorization": f"Bearer {bearer_token}"}
-
-      async with httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=60.0)) as client:
-         response = await client.get(
-               f"{PROTHEUS_API_URL}/WSRESTSC1/buscarsolicitacao",
-               params=params,
-               headers=headers
-         )
-         response.raise_for_status()
-         return JSONResponse(content=response.json())
-
-   except httpx.HTTPStatusError as exc:
-      if exc.response.status_code == 401 and retry < 3:
-         auth = await refresh_protheus_token(refresh_token=auth["refresh_token"])
-         return await get_purchase_requests(
-            current_user,
-            codSolicitacao,
-            limit,
-            offset,
-            dataIni,
-            dataFim,
-            auth,
-            retry + 1
-         )
+      
+      from app.main import protheus_auth
+      # O método request do  autenticador cuida de tudo.
+      api_response_data = await protheus_auth.request(
+         method="GET",
+         url=f"{protheus_auth.auth_url}/WSRESTSC1/buscarsolicitacao",
+         params=params
+      )
+      
+      return api_response_data
+   
+   except httpx.HTTPStatusError as e:
+      # Erro que persistiu mesmo após a tentativa de renovação
       raise HTTPException(
-         status_code=status.HTTP_401_UNAUTHORIZED,
-         detail="Não foi possível realizar autenticação junto ao Protheus."
+         status_code=e.response.status_code,
+         detail=f"Erro na API do Protheus: {e.response.json()}"
       )
-
-   except httpx.ReadTimeout as e:
-      return HTTPException(
-         status_code=status.HTTP_408_REQUEST_TIMEOUT,
-         detail="A aplicação Protheus demorou muito a responder."
-      )
-         
-
-
-   # return {"username": current_user.username, "message": "Bem-vindo ao seu perfil!"}
-
-# async def main():
-#    load_dotenv(override=True)
-#    req = await get_purchase_requests(codSolicitacao='0726125')
-
-# if __name__ == "__main__":
-#    import asyncio
-#    asyncio.run(main())
+   # except Exception as e:
+   #    # Outros erros inesperados
+   #    raise HTTPException(
+   #       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+   #       detail=str(e)
+   #    )
