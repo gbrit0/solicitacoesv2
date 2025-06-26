@@ -36,12 +36,16 @@ async def login_for_access_token(
       "Authorization": f"Basic {auth_base64}"
    }
 
+   params = {
+      "get_full_session": "true"
+   }
    async with httpx.AsyncClient() as client:
       try:
          # Loga no GLPI
          response = await client.get(
                f"{GLPI_API_URL}/initSession/",
                headers=headers,
+               params=params,
                timeout=10.0
          )
          # Lança uma exceção para respostas de erro (4xx ou 5xx)
@@ -83,7 +87,9 @@ async def login_for_access_token(
            
       access_token = create_access_token(
          data={
-            "sub": form_data.username
+            "sub": form_data.username,
+            "nome": str(glpi_session_data['session']['glpifirstname']).strip(),
+            "sobrenome": str(glpi_session_data['session']['glpirealname']).strip()
          }, 
          expires_delta=access_token_expires
       )

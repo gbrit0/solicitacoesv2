@@ -5,8 +5,6 @@ import json
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 
-   
-
 # Esta classe irá gerenciar o estado dos tokens de forma segura
 class ProtheusAuthenticator:
    def __init__(self, protheus_user: str, protheus_pass: str, protheus_api_url: str):
