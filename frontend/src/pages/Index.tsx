@@ -38,7 +38,7 @@ const Index = () => {
       
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-2 mb-6"> {/* alterar grid-cols-n para o número correspondente de itens apresentados */}
             <TabsTrigger value="requests" className="flex items-center space-x-2">
               <List className="h-3 w-3" />
               <span className="hidden sm:inline">Lista de Solicitações</span>
@@ -49,11 +49,11 @@ const Index = () => {
               <span className="hidden sm:inline">Solicitação de Compras</span>
               <span className="sm:hidden">Compras</span>
             </TabsTrigger>
-            <TabsTrigger value="warehouse" className="flex items-center space-x-2">
+            {/* <TabsTrigger value="warehouse" className="flex items-center space-x-2">
               <Package className="h-3 w-3" />
               <span className="hidden sm:inline">Solicitação ao Almoxarifado</span>
               <span className="sm:hidden">Almoxarifado</span>
-            </TabsTrigger>
+            </TabsTrigger> */}
             {/* <TabsTrigger value="users" className="flex items-center space-x-2">
               <UserPlus className="h-3 w-3" />
               <span className="hidden sm:inline">Cadastrar Usuário</span>
@@ -69,9 +69,9 @@ const Index = () => {
             <PurchaseRequestForm user={user} />
           </TabsContent>
 
-          <TabsContent value="warehouse" className="space-y-4">
+          {/* <TabsContent value="warehouse" className="space-y-4">
             <WarehouseRequestForm user={user} />
-          </TabsContent>
+          </TabsContent> */}
 
           {/* <TabsContent value="users" className="space-y-4">
             <UserRegistrationForm />
