@@ -13,11 +13,9 @@ load_dotenv(override=True)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
-GLPI_API_URL = os.getenv("GLPI_API_URL")
 
 # Validação inicial para garantir que as variáveis foram carregadas
-if not all([SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, GLPI_API_URL]):
+if not all([SECRET_KEY, ALGORITHM]):
    raise RuntimeError("Variáveis de ambiente essenciais não foram definidas.")
 
 # oauth2_scheme aponta para o endpoint que o cliente deve usar para obter o token.
