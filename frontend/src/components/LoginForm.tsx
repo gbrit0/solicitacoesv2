@@ -5,12 +5,14 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
+import { jwtDecode } from "jwt-decode";
+
 interface LoginFormProps {
-  onLogin: (userData: { id: number; name: string; email: string }) => void;
+  onLogin: (userData: { nome: string; sobrenome: string; }) => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
-  const [usuario, setUsuario] = useState('');
+  const [username, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -18,39 +20,46 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('password', password);
     try {
       // Simulação de API de login - substitua pela sua API real
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('http://localhost:8000/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify({ usuario, password }),
+        body: formData.toString(),
       });
 
       if (response.ok) {
         const userData = await response.json();
-        onLogin(userData);
+        const decoded: any = jwtDecode(userData.access_token);
+
+        // Salva o token e os dados do usuário
+        localStorage.setItem("token", userData.access_token);
+        localStorage.setItem("user", JSON.stringify({
+          nome: decoded.nome,
+          sobrenome: decoded.sobrenome
+        }));
+
+        onLogin({
+          nome: decoded.nome,
+          sobrenome: decoded.sobrenome
+        });
         toast({
           title: "Login realizado com sucesso!",
-          description: `Bem-vindo, ${userData.name}!`,
+          description: `Bem-vindo, ${decoded.nome || "usuário"}!`,
         });
       } else {
         throw new Error('Credenciais inválidas');
       }
     } catch (error) {
-      // Para demonstração, vou simular um login bem-sucedido
-      console.log('Simulando login para demonstração');
-      const mockUser = {
-        id: 1,
-        name: 'Gabriel Brito Ribeiro',
-        email: usuario || 'usuario@exemplo.com'
-      };
-      onLogin(mockUser);
+      // console.log(error)
       toast({
-        title: "Login realizado com sucesso!",
-        description: `Bem-vindo, ${mockUser.name}!`,
+        title: "Erro",
+        description: `${error}`,
       });
     } finally {
       setLoading(false);
@@ -78,7 +87,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                 id="usuario"
                 type="text"
                 placeholder="joao.silva"
-                value={usuario}
+                value={username}
                 onChange={(e) => setUsuario(e.target.value)}
                 required
               />

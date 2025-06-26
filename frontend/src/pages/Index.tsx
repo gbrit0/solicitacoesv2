@@ -1,12 +1,12 @@
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { List, ShoppingCart, Package, UserPlus } from 'lucide-react';
 import LoginForm from '@/components/LoginForm';
 import Header from '@/components/Header';
 import RequestsTable from '@/components/RequestsTable';
 import PurchaseRequestForm from '@/components/PurchaseRequestForm';
-import WarehouseRequestForm from '@/components/WarehouseRequestForm';
+// import WarehouseRequestForm from '@/components/WarehouseRequestForm';
 // import UserRegistrationForm from '@/components/UserRegistrationForm';
 
 interface User {
@@ -26,7 +26,27 @@ const Index = () => {
   const handleLogout = () => {
     setUser(null);
     setActiveTab('requests');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  useEffect(() => {
+    // obter solicitações
+    axios.get('http://127.0.0.1:8000/requests/purchase')
+      .then(resposta => {
+        console.log(resposta)
+      })
+      .catch(erro => {
+        console.log(erro)
+      })
+  }, []);
 
   if (!user) {
     return <LoginForm onLogin={handleLogin} />;

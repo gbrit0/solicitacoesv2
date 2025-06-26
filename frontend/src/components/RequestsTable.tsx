@@ -151,6 +151,7 @@ const RequestsTable: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Filtros */}
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">

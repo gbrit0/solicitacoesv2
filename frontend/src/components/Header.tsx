@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut, User } from 'lucide-react';
 
 interface HeaderProps {
-  user: { name: string; email: string } | null;
+  user: { nome: string; sobrenome: string } | null;
   onLogout: () => void;
 }
 
@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <User className="h-5 w-5" />
-              <span className="font-medium">{user.name}</span>
+              <span className="font-medium">{user.nome} {user.sobrenome}</span>
             </div>
             <Button 
               variant="outline" 
