@@ -90,8 +90,8 @@ A implementação da API Rest do Protheus neste orquestrador consiste basicament
 
       ```bash
          {
-            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJUT1RWUy1BRFZQTC1GV0pXVCIsInN1YiI6Im1hcmlvIiwiaWF0IjoxNTUzMDIyMjYwLCJleHAiOjE1NTMwMjU4NjAsInJlc3RyaWN0ZWR0byI6WyJhcGkvcHJvdGhldXMvIiwiYXBpL2ZyYW1ld29yay8iXX0.jgvejFxPYDchLtj04r7mizRZCerb7xFXhB8Ihk+kFqg=",
-            "refresh_token": "YEv3dtFbNCisITD3yDtKi5/x.T0jkPv12SWK/JjWS0xI01YbIXWM10KWw2ehCxG9yRVkXCiItBYN57Rizh4OH67m7H3-Jd-3ruC4/pBAWBkXVO251HPiS91KAh7FfbZqWaiDPmvYBvoiaP4KRR1gYcvCr9ES7wC3iRA2wQrQvODlH7b3FCTmvHzCVmRMi4eApgy4iOGVpBK7-ryI=.fD77MI4MBk1rW6eBjMq9EutN1ZIC1YKKuKqdEhbLf/k=",
+            "access_token": "eyJhbGciOiJIUzI1Ni...",
+            "refresh_token": "YEv3dtFbNCisITD3y...",
             "scope": "default",
             "token_type": "Bearer",
             "expires_in": 3600,
@@ -128,8 +128,8 @@ Após a expiração do token de acesso, ao tentar requisitar alguma API protegid
 
       ```bash
       {    
-         "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJUT1RWUy1BRFZQTC1GV0pXVCIsInN1YiI6Im1hcmlvIiwiaWF0IjoxNTUzMDIyOTQ0LCJleHAiOjE1NTMwMjY1NDQsInJlc3RyaWN0ZWR0byI6WyJhcGkvcHJvdGhldXMvIiwiYXBpL2ZyYW1ld29yay8iXX0.XsS38RdeJIetwh6Zq2DLQs0PhyLSRxCxOnCgp4SaoeY=",
-         "refresh_token": "YEv3dtFbNCisMST1yztKi5/x.T0jkPv12SWK/JjWS0xI01YbIXWM10KWw2ehCxG9yRVkXCiItBYN57Rizh4OH67m7H3-Jd-3ruC4/pBAWBkXVO251HPiS91KAh7FfbZqWaiDPmvYBvoiaP4KRR1hUct67vFah2VLUSymyfLQtOjltqqzVPkqZMBaVtyVl4c4pxTw4IQtpHw==.tIUbpKC8sWcB6oIMhXcbOhq/bveF216m9gmboBrxJ7U=",
+         "access_token": "eyJhbGciOiJIUzI1NiIsInR...",
+         "refresh_token": "YEv3dtFbNCisMST1yztKi5...",
          "scope": "default",
          "token_type": "Bearer",
          "expires_in": 3600,

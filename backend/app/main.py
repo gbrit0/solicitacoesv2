@@ -13,11 +13,11 @@ app = FastAPI()
 from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # para todas as origiens ou "http://localhost:8080" apenas para local
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+   CORSMiddleware,
+   allow_origins=["*"],  # para todas as origiens ou "http://localhost:8080" apenas para local
+   allow_credentials=True,
+   allow_methods=["*"],
+   allow_headers=["*"],
 )
 
 load_dotenv(override=True)

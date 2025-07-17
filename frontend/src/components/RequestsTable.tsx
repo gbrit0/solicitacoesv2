@@ -160,7 +160,7 @@ const RequestsTable: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startDate">Data Início</Label>
               <Input
@@ -202,7 +202,7 @@ const RequestsTable: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="type">Tipo</Label>
               <Select value={filters.type} onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}>
                 <SelectTrigger>
@@ -214,7 +214,7 @@ const RequestsTable: React.FC = () => {
                   <SelectItem value="almoxarifado">Almoxarifado</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
           <div className="mt-4">
             <div className="relative">
@@ -242,7 +242,7 @@ const RequestsTable: React.FC = () => {
                 <tr className="border-b bg-gray-50">
                   <th className="text-left p-3 font-medium">Status</th>
                   <th className="text-left p-3 font-medium">ID</th>
-                  <th className="text-left p-3 font-medium">Tipo</th>
+                  {/* <th className="text-left p-3 font-medium">Tipo</th> */}
                   <th className="text-left p-3 font-medium">Solicitante</th>
                   <th className="text-left p-3 font-medium">Produto</th>
                   <th className="text-left p-3 font-medium">Quantidade</th>
@@ -259,11 +259,11 @@ const RequestsTable: React.FC = () => {
                       <div className={`w-4 h-4 rounded-full ${getStatusColor(request.status)}`} title={request.status}></div>
                     </td>
                     <td className="p-3 font-mono">{request.id}</td>
-                    <td className="p-3">
+                    {/* <td className="p-3">
                       <Badge className={`${getTypeColor(request.type)} text-white`}>
                         {request.type === 'compras' ? 'Compras' : 'Almoxarifado'}
                       </Badge>
-                    </td>
+                    </td> */}
                     <td className="p-3">{request.requester}</td>
                     <td className="p-3">{request.product}</td>
                     <td className="p-3">{request.quantity.toFixed(2)}</td>
