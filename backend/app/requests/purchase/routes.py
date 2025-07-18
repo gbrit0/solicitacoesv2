@@ -71,7 +71,7 @@ async def get_purchase_requests(
       # O método request do  autenticador cuida de tudo.
       api_response_data = await protheus_auth.request(
          method="GET",
-         url=f"{protheus_auth.auth_url}/WSRESTSC1/buscarsolicitacao",
+         url=f"{protheus_auth.auth_url}/wsrestsc1/buscarsolicitacao",
          params=params
       )
       
