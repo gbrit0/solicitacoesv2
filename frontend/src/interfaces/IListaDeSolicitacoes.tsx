@@ -1,5 +1,6 @@
 export default interface IListaDeSolicitacoes {
-  id: string;
+  solicitacao: string;
+  recno: string;
   status: string;
   requester: string;
   product: string;

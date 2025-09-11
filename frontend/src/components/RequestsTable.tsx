@@ -6,27 +6,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, Trash, Filter, Search } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
 
 import IListaDeSolicitacoes from '@/interfaces/IListaDeSolicitacoes';
 
 import http from '@/http/index';
-
-// interface Request {
-//   id: string;
-//   type: 'compras' | 'almoxarifado';
-//   status: 'pendente' | 'aprovado' | 'rejeitado';
-//   requester: string;
-//   product: string;
-//   quantity: number;
-//   requestDate: string;
-//   needDate: string;
-//   observations: string;
-//   issueDate: string;
-// }
+import { Navigate } from 'react-router-dom';
 
 const RequestsTable: React.FC = () => {
   const [requests, setRequests] = useState<IListaDeSolicitacoes[]>([]);
-  // const [solicitacoes, setSolicitacoes] = useState<IListaDeSolicitacoes[]>([])
   const [filteredRequests, setFilteredRequests] = useState<IListaDeSolicitacoes[]>([]);
   const [filters, setFilters] = useState({
     startDate: '',
@@ -59,48 +47,13 @@ const RequestsTable: React.FC = () => {
         })
       }
     }
-    // Simular dados das solicitações
-    // const mockRequests: Request[] = [
-    //   {
-    //     id: '076477',
-    //     type: 'compras',
-    //     status: 'pendente',
-    //     requester: 'Gabriel Brito Ribeiro',
-    //     product: 'COXIM R-073',
-    //     quantity: 23,
-    //     requestDate: '09/04/2025',
-    //     needDate: '24/04/2025',
-    //     observations: 'Teste',
-    //     issueDate: '09/04/2025'
-    //   },
-    //   {
-    //     id: '076478',
-    //     type: 'almoxarifado',
-    //     status: 'aprovado',
-    //     requester: 'Gabriel Brito Ribeiro',
-    //     product: 'TERMINAL DE COMPRESSAO 70MM',
-    //     quantity: 54,
-    //     requestDate: '09/04/2025',
-    //     needDate: '24/04/2025',
-    //     observations: 'Teste',
-    //     issueDate: '09/04/2025'
-    //   },
-    //   {
-    //     id: '076479',
-    //     type: 'compras',
-    //     status: 'rejeitado',
-    //     requester: 'Gabriel Brito Ribeiro',
-    //     product: 'CURVA 90° ACO CARB SOLDAVEL 4"',
-    //     quantity: 2,
-    //     requestDate: '09/04/2025',
-    //     needDate: '30/04/2025',
-    //     observations: 'Teste',
-    //     issueDate: '09/04/2025'
-    //   }
-    // ];
     
     fetchSolicitacoes();
   }, [toast]);
+
+  useEffect(() => {
+    setCurrentPage(1); // Volta para a página 1 quando os filtros mudam
+  }, [filters, searchTerm]);
 
   useEffect(() => {
     let filtered = requests;
@@ -125,26 +78,31 @@ const RequestsTable: React.FC = () => {
     if (searchTerm) {
       filtered = filtered.filter(req => 
         req.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.id.includes(searchTerm) ||
-        req.requester.toLowerCase().includes(searchTerm.toLowerCase())
+        String(req.solicitacao).includes(searchTerm) ||
+        String(req.requester).toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     setFilteredRequests(filtered);
   }, [requests, filters, searchTerm]);
 
-  const handleEdit = (id: string) => {
+  const navigate = useNavigate();
+  
+  const handleEdit = (request: IListaDeSolicitacoes) => {
     toast({
       title: "Editar Solicitação",
-      description: `Editando solicitação ${id}`,
+      description: `Editando solicitação ${request.solicitacao}`,
+    });
+    navigate('/solicitacao_de_compra', {
+      state: { requestData: request }
     });
   };
 
-  const handleDelete = (id: string) => {
-    setRequests(prev => prev.filter(req => req.id !== id));
+  const handleDelete = (request: IListaDeSolicitacoes) => {
+    setRequests(prev => prev.filter(req => req.solicitacao !== request.solicitacao));
     toast({
       title: "Solicitação Excluída",
-      description: `Solicitação ${id} foi excluída com sucesso.`,
+      description: `Solicitação ${request.solicitacao} foi excluída com sucesso.`,
     });
   };
 
@@ -171,6 +129,19 @@ const RequestsTable: React.FC = () => {
       default: return 'bg-gray-500';
     }
   };
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+
+  // Calcula o número total de páginas
+  const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
+
+  // Calcula o índice inicial e final dos itens para a página atual
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+
+  // Cria um novo array com apenas os itens da página atual
+  const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
 
   return (
     <div className="space-y-6">
@@ -220,9 +191,16 @@ const RequestsTable: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="pendente">Pendente</SelectItem>
-                  <SelectItem value="aprovado">Aprovado</SelectItem>
-                  <SelectItem value="rejeitado">Rejeitado</SelectItem>
+                  <SelectItem value="Solicitação Bloqueada">Solicitação Bloqueada</SelectItem>
+                  <SelectItem value="Solicitação Pendente">Solicitação Pendente</SelectItem>
+                  <SelectItem value="Solicitação Totalmente Atendida">Solicitação Totalmente Atendida</SelectItem>
+                  <SelectItem value="Solicitação Parcialmente Atendida Utilizada em Cotação">Solicitação Parcialmente Atendida Utilizada em Cotação</SelectItem>
+                  <SelectItem value="Solicitação Parcialmente Atendida">Solicitação Parcialmente Atendida</SelectItem>
+                  <SelectItem value="Solicitação em Processo de Cotação">Solicitação em Processo de Cotação</SelectItem>
+                  <SelectItem value="Solicitação de Produto Importado">Solicitação de Produto Importado</SelectItem>
+                  <SelectItem value="Elim. por Resíduo">Elim. por Resíduo</SelectItem>
+                  <SelectItem value="Solicitação Rejeitada">Solicitação Rejeitada</SelectItem>
+                  <SelectItem value="Solicitação em Compra Centralizada">Solicitação em Compra Centralizada</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -262,54 +240,58 @@ const RequestsTable: React.FC = () => {
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
+              {/* ... seu thead continua o mesmo ... */}
               <thead>
                 <tr className="border-b bg-gray-50">
                   <th className="text-left p-3 font-medium">Status</th>
                   <th className="text-left p-3 font-medium">ID</th>
-                  {/* <th className="text-left p-3 font-medium">Tipo</th> */}
                   <th className="text-left p-3 font-medium">Solicitante</th>
                   <th className="text-left p-3 font-medium">Produto</th>
                   <th className="text-left p-3 font-medium">Quantidade</th>
                   <th className="text-left p-3 font-medium">Data de Necessidade</th>
                   <th className="text-left p-3 font-medium">Observações</th>
-                  <th className="text-left p-3 font-medium">Emissão</th>
                   <th className="text-left p-3 font-medium">Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredRequests.map((request) => (
-                  <tr key={request.id} className="border-b hover:bg-gray-50">
+                {/* ALTERADO: Mapeie 'paginatedRequests' em vez de 'filteredRequests' */}
+                {paginatedRequests.map((request) => (
+                  <tr key={request.solicitacao} className="border-b hover:bg-gray-50">
                     <td className="p-3">
                       <div className={`w-4 h-4 rounded-full ${getStatusColor(request.status)}`} title={request.status}></div>
                     </td>
-                    <td className="p-3 font-mono">{request.id}</td>
-                    {/* <td className="p-3">
-                      <Badge className={`${getTypeColor(request.type)} text-white`}>
-                        {request.type === 'compras' ? 'Compras' : 'Almoxarifado'}
-                      </Badge>
-                    </td> */}
+                    <td className="p-3 font-mono">{request.solicitacao}</td>
                     <td className="p-3">{request.requester}</td>
                     <td className="p-3">{request.product}</td>
-                    {/* <td className="p-3">{request.quantity.toFixed(2)}</td> */}
                     <td className="p-3">{request.quantity}</td>
                     <td className="p-3">{request.needDate}</td>
                     <td className="p-3">{request.observations}</td>
-                    {/* <td className="p-3">{request.issueDate}</td> */}
                     <td className="p-3">
                       <div className="flex space-x-2">
-                        <Button
+                        {/* <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleEdit(request.id)}
                           className="h-8 w-8 p-0"
                         >
                           <Edit className="h-4 w-4" />
+                        </Button> */}
+                        <Button // Somente editar solicitações pendentes
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEdit(request)} // Passe o objeto 'request' inteiro
+                          className="h-8 w-8 p-0"
+                          // Adicione a lógica de disabled aqui
+                          disabled={request.status !== 'Solicitação Pendente'}
+                          >
+                          <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleDelete(request.id)}
+                          onClick={() => handleDelete(request)}
                           className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                          disabled={request.status !== 'Solicitação Pendente'}
                         >
                           <Trash className="h-4 w-4" />
                         </Button>
@@ -327,12 +309,32 @@ const RequestsTable: React.FC = () => {
             </div>
           )}
 
+          {/* SEÇÃO DE PAGINAÇÃO ATUALIZADA */}
           <div className="mt-4 flex justify-between items-center text-sm text-gray-600">
-            <span>Mostrando {filteredRequests.length} de {requests.length} registros</span>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm" disabled>Anterior</Button>
-              <Button variant="outline" size="sm" className="bg-blue-600 text-white">1</Button>
-              <Button variant="outline" size="sm" disabled>Próximo</Button>
+            {/* Mostra a contagem de registros na página atual vs o total filtrado */}
+            <span>Mostrando {paginatedRequests.length} de {filteredRequests.length} registros</span>
+
+            <div className="flex space-x-2 items-center">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </Button>
+              
+              {/* Mostra o número da página atual e o total de páginas */}
+              <span>Página {currentPage} de {totalPages > 0 ? totalPages : 1}</span>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                disabled={currentPage === totalPages || totalPages === 0}
+              >
+                Próximo
+              </Button>
             </div>
           </div>
         </CardContent>

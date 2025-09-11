@@ -13,7 +13,11 @@ import IProduto from '@/interfaces/IProduto';
 import IRateio from '@/interfaces/IRateio';
 import ICentroDeCusto from '@/interfaces/ICentroDeCusto';
 
+import IListaDeSolicitacoes from '@/interfaces/IListaDeSolicitacoes';
+
 import http from '@/http/index';
+
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface User {
   id: number;
@@ -37,6 +41,16 @@ interface Item {
 }
 
 const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
+  // NOVO: Hooks para rota
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // NOVO: Extrai os dados da solicitação para editar. Se não houver, será 'undefined'.
+  const requestToEdit = location.state?.requestData;
+
+  // NOVO: Define se o formulário está em modo de edição
+  const isEditMode = Boolean(requestToEdit);
+
   // Função para obter a data padrão (hoje + 15 dias)
   const getDefaultDate = () => {
     const today = new Date();
@@ -76,6 +90,8 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
         });
       }
     };
+    
+  
 
     const fecthRateios = async () => {
       try {
@@ -122,6 +138,13 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
 
   }, [toast]); // Adicionado toast como dependência
 
+  useEffect(() => {
+    if (isEditMode && requestToEdit.items) {
+      // Preenche o estado 'items' com os dados da solicitação a ser editada
+      // Certifique-se que a estrutura dos dados bate com a interface 'Item'
+      setItems(requestToEdit.items);
+    }
+  }, [isEditMode, requestToEdit]); // Roda apenas quando esses valores mudarem
 
   const handleItemChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -140,40 +163,56 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
     e.preventDefault();
     setLoading(true);
 
+    const requestData = {
+      items,
+      requester: user.name,
+      requesterId: user.id,
+      type: 'compras',
+      status: 'pendente',
+      requestDate: new Date().toISOString()
+    };
+
     try {
-      const response = await fetch('/api/erp/purchase-requests', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          items,
-          requester: user.name,
-          requesterId: user.id,
-          type: 'compras',
-          status: 'pendente',
-          requestDate: new Date().toISOString()
-        }),
-      });
+      let response;
+      if (isEditMode) {
+        // LÓGICA DE EDIÇÃO
+        response = await fetch(`/api/erp/purchase-requests/${requestToEdit.solicitacao}`, { // URL com o ID
+          method: 'PUT', // Método PUT para atualizar
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(requestData),
+        });
+      } else {
+        // LÓGICA DE CRIAÇÃO (a que você já tinha)
+        response = await fetch('/api/erp/purchase-requests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify(requestData),
+        });
+      }
 
       if (response.ok) {
         toast({
-          title: "Solicitação de Compra Criada!",
-          description: "Sua solicitação foi registrada com sucesso.",
+          title: isEditMode ? "Solicitação Atualizada!" : "Solicitação Criada!",
+          description: `Sua solicitação foi ${isEditMode ? 'atualizada' : 'registrada'} com sucesso.`,
         });
-        setItems([{ product: '', quantity: '', needDate: getDefaultDate(), costCenter: '', observations: '', apportionment: '' }]);
+        // Após sucesso, volta para a página da lista
+        navigate('/solicitacoes'); 
       } else {
-        throw new Error('Erro ao enviar solicitação');
+        throw new Error(isEditMode ? 'Erro ao atualizar solicitação' : 'Erro ao enviar solicitação');
       }
     } catch (error) {
       console.error('Erro:', error);
-      // Mantendo a lógica de fallback para demonstração
       toast({
-        title: "Solicitação de Compra Criada!",
-        description: "Sua solicitação foi registrada no sistema (modo demonstração).",
+        title: "Erro na Operação",
+        description: "Não foi possível salvar a solicitação. Tente novamente.",
+        variant: "destructive"
       });
-      setItems([{ product: '', quantity: '', needDate: getDefaultDate(), costCenter: '', observations: '', apportionment: '' }]);
     } finally {
       setLoading(false);
     }
@@ -200,7 +239,9 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <ShoppingCart className="h-5 w-5 text-blue-600" />
-            <span>Nova Solicitação de Compras</span>
+            <span>
+              {isEditMode ? `Editando Solicitação #${requestToEdit.solicitacao}` : 'Nova Solicitação de Compras'}
+            </span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -338,7 +379,9 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
                 className="bg-blue-600 hover:bg-blue-700"
                 disabled={loading}
               >
-                {loading ? 'Enviando...' : 'Criar Solicitação'}
+                {loading 
+                  ? (isEditMode ? 'Salvando...' : 'Enviando...') 
+                  : (isEditMode ? 'Salvar Alterações' : 'Criar Solicitação')}
               </Button>
             </div>
           </form>

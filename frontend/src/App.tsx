@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PurchaseRequestForm from "./components/PurchaseRequestForm";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,14 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route
+            path="/solicitacao_de_compra"
+            element={
+              <ProtectedRoute>
+                <PurchaseRequestForm user={undefined} />
+              </ProtectedRoute>
+            }
+          />
           <Route 
             path="/" 
             element={
