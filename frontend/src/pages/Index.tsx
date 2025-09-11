@@ -1,56 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { List, ShoppingCart, Package, UserPlus } from 'lucide-react';
-import LoginForm from '@/components/LoginForm';
+import { List, ShoppingCart, Package, UserPlus, BoxIcon } from 'lucide-react';
 import Header from '@/components/Header';
 import RequestsTable from '@/components/RequestsTable';
 import PurchaseRequestForm from '@/components/PurchaseRequestForm';
+import { useAuth } from '@/hooks/useAuth';
 // import WarehouseRequestForm from '@/components/WarehouseRequestForm';
 // import UserRegistrationForm from '@/components/UserRegistrationForm';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+// import { RequestForm } from '@/components/RepairKit';
 
 const Index = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('requests');
 
-  const handleLogin = (userData: User) => {
-    setUser(userData);
-  };
-
   const handleLogout = () => {
-    setUser(null);
+    logout();
     setActiveTab('requests');
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
   };
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
-
-  useEffect(() => {
-    // obter solicitações
-    axios.get('http://127.0.0.1:8000/requests/purchase')
-      .then(resposta => {
-        console.log(resposta)
-      })
-      .catch(erro => {
-        console.log(erro)
-      })
-  }, []);
-
-  if (!user) {
-    return <LoginForm onLogin={handleLogin} />;
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -59,16 +26,19 @@ const Index = () => {
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6"> {/* alterar grid-cols-n para o número correspondente de itens apresentados */}
+            
             <TabsTrigger value="requests" className="flex items-center space-x-2">
               <List className="h-3 w-3" />
               <span className="hidden sm:inline">Lista de Solicitações</span>
               <span className="sm:hidden">Lista</span>
             </TabsTrigger>
+
             <TabsTrigger value="purchase" className="flex items-center space-x-2">
               <ShoppingCart className="h-3 w-3" />
               <span className="hidden sm:inline">Solicitação de Compras</span>
               <span className="sm:hidden">Compras</span>
             </TabsTrigger>
+
             {/* <TabsTrigger value="warehouse" className="flex items-center space-x-2">
               <Package className="h-3 w-3" />
               <span className="hidden sm:inline">Solicitação ao Almoxarifado</span>
@@ -88,6 +58,10 @@ const Index = () => {
           <TabsContent value="purchase" className="space-y-4">
             <PurchaseRequestForm user={user} />
           </TabsContent>
+
+          {/* <TabsContent value="repair" className="space-y-4">
+            <RequestForm user={user} />
+          </TabsContent> */}
 
           {/* <TabsContent value="warehouse" className="space-y-4">
             <WarehouseRequestForm user={user} />

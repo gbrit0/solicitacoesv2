@@ -3,8 +3,16 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { LogOut, User } from 'lucide-react';
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  nome: string;
+  sobrenome: string;
+}
+
 interface HeaderProps {
-  user: { nome: string; sobrenome: string } | null;
+  user: User | null;
   onLogout: () => void;
 }
 

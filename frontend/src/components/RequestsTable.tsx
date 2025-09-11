@@ -4,26 +4,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Edit, Trash, Calendar, Filter, Search } from 'lucide-react';
+import { Edit, Trash, Filter, Search } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
-interface Request {
-  id: string;
-  type: 'compras' | 'almoxarifado';
-  status: 'pendente' | 'aprovado' | 'rejeitado';
-  requester: string;
-  product: string;
-  quantity: number;
-  requestDate: string;
-  needDate: string;
-  observations: string;
-  issueDate: string;
-}
+import IListaDeSolicitacoes from '@/interfaces/IListaDeSolicitacoes';
+
+import http from '@/http/index';
+
+// interface Request {
+//   id: string;
+//   type: 'compras' | 'almoxarifado';
+//   status: 'pendente' | 'aprovado' | 'rejeitado';
+//   requester: string;
+//   product: string;
+//   quantity: number;
+//   requestDate: string;
+//   needDate: string;
+//   observations: string;
+//   issueDate: string;
+// }
 
 const RequestsTable: React.FC = () => {
-  const [requests, setRequests] = useState<Request[]>([]);
-  const [filteredRequests, setFilteredRequests] = useState<Request[]>([]);
+  const [requests, setRequests] = useState<IListaDeSolicitacoes[]>([]);
+  // const [solicitacoes, setSolicitacoes] = useState<IListaDeSolicitacoes[]>([])
+  const [filteredRequests, setFilteredRequests] = useState<IListaDeSolicitacoes[]>([]);
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
@@ -35,48 +39,68 @@ const RequestsTable: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Simular dados das solicitações
-    const mockRequests: Request[] = [
-      {
-        id: '076477',
-        type: 'compras',
-        status: 'pendente',
-        requester: 'Gabriel Brito Ribeiro',
-        product: 'COXIM R-073',
-        quantity: 23,
-        requestDate: '09/04/2025',
-        needDate: '24/04/2025',
-        observations: 'Teste',
-        issueDate: '09/04/2025'
-      },
-      {
-        id: '076478',
-        type: 'almoxarifado',
-        status: 'aprovado',
-        requester: 'Gabriel Brito Ribeiro',
-        product: 'TERMINAL DE COMPRESSAO 70MM',
-        quantity: 54,
-        requestDate: '09/04/2025',
-        needDate: '24/04/2025',
-        observations: 'Teste',
-        issueDate: '09/04/2025'
-      },
-      {
-        id: '076479',
-        type: 'compras',
-        status: 'rejeitado',
-        requester: 'Gabriel Brito Ribeiro',
-        product: 'CURVA 90° ACO CARB SOLDAVEL 4"',
-        quantity: 2,
-        requestDate: '09/04/2025',
-        needDate: '30/04/2025',
-        observations: 'Teste',
-        issueDate: '09/04/2025'
+    const fetchSolicitacoes = async () => {
+      try {
+        const response = await http.get(`/solicitacoes`, {
+          headers: {
+            'accept':'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          }
+        });
+        setRequests(response.data.solicitacoes);
+        setFilteredRequests(response.data.solicitacoes);
+        // console.log("Solicitações carregadas:", response.data.solicitacoes);
+      } catch (error) {
+        console.error("Erro ao buscar solicitacoes:", error);
+        toast({
+          title: "Erro ao buscar as solicitações",
+          description: "Não foi possível carregar a lista de solicitações. Contate o administrador!",
+          variant: "destructive"
+        })
       }
-    ];
-    setRequests(mockRequests);
-    setFilteredRequests(mockRequests);
-  }, []);
+    }
+    // Simular dados das solicitações
+    // const mockRequests: Request[] = [
+    //   {
+    //     id: '076477',
+    //     type: 'compras',
+    //     status: 'pendente',
+    //     requester: 'Gabriel Brito Ribeiro',
+    //     product: 'COXIM R-073',
+    //     quantity: 23,
+    //     requestDate: '09/04/2025',
+    //     needDate: '24/04/2025',
+    //     observations: 'Teste',
+    //     issueDate: '09/04/2025'
+    //   },
+    //   {
+    //     id: '076478',
+    //     type: 'almoxarifado',
+    //     status: 'aprovado',
+    //     requester: 'Gabriel Brito Ribeiro',
+    //     product: 'TERMINAL DE COMPRESSAO 70MM',
+    //     quantity: 54,
+    //     requestDate: '09/04/2025',
+    //     needDate: '24/04/2025',
+    //     observations: 'Teste',
+    //     issueDate: '09/04/2025'
+    //   },
+    //   {
+    //     id: '076479',
+    //     type: 'compras',
+    //     status: 'rejeitado',
+    //     requester: 'Gabriel Brito Ribeiro',
+    //     product: 'CURVA 90° ACO CARB SOLDAVEL 4"',
+    //     quantity: 2,
+    //     requestDate: '09/04/2025',
+    //     needDate: '30/04/2025',
+    //     observations: 'Teste',
+    //     issueDate: '09/04/2025'
+    //   }
+    // ];
+    
+    fetchSolicitacoes();
+  }, [toast]);
 
   useEffect(() => {
     let filtered = requests;
@@ -88,20 +112,13 @@ const RequestsTable: React.FC = () => {
     if (filters.endDate) {
       filtered = filtered.filter(req => new Date(req.requestDate.split('/').reverse().join('-')) <= new Date(filters.endDate));
     }
-
     // Filtro por usuário
     if (filters.user) {
       filtered = filtered.filter(req => req.requester.toLowerCase().includes(filters.user.toLowerCase()));
     }
-
     // Filtro por status
     if (filters.status && filters.status !== 'todos') {
       filtered = filtered.filter(req => req.status === filters.status);
-    }
-
-    // Filtro por tipo
-    if (filters.type && filters.type !== 'todos') {
-      filtered = filtered.filter(req => req.type === filters.type);
     }
 
     // Filtro por termo de pesquisa
@@ -133,10 +150,17 @@ const RequestsTable: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pendente': return 'bg-yellow-500';
-      case 'aprovado': return 'bg-green-500';
-      case 'rejeitado': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'Solicitação Bloqueada': return 'bg-gray-500';
+      case 'Solicitação Pendente': return 'bg-green-500';
+      case 'Solicitação Totalmente Atendida': return 'bg-red-500';
+      case 'Solicitação Parcialmente Atendida Utilizada em Cotação': return 'bg-red-300';
+      case 'Solicitação Parcialmente Atendida': return 'bg-yellow-500';
+      case 'Solicitação em Processo de Cotação': return 'bg-gray-800';
+      case 'Solicitação de Produto Importado': return 'bg-purple-500';
+      case 'Elim. por Resíduo': return 'bg-yellow-500';
+      case 'Solicitação Rejeitada': return 'bg-orange-500';
+      case 'Solicitação em Compra Centralizada': return 'bg-purple-800';
+      default: return 'bg-gray-300';
     }
   };
 
@@ -266,10 +290,11 @@ const RequestsTable: React.FC = () => {
                     </td> */}
                     <td className="p-3">{request.requester}</td>
                     <td className="p-3">{request.product}</td>
-                    <td className="p-3">{request.quantity.toFixed(2)}</td>
+                    {/* <td className="p-3">{request.quantity.toFixed(2)}</td> */}
+                    <td className="p-3">{request.quantity}</td>
                     <td className="p-3">{request.needDate}</td>
                     <td className="p-3">{request.observations}</td>
-                    <td className="p-3">{request.issueDate}</td>
+                    {/* <td className="p-3">{request.issueDate}</td> */}
                     <td className="p-3">
                       <div className="flex space-x-2">
                         <Button

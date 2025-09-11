@@ -7,8 +7,16 @@ import { useToast } from "@/hooks/use-toast";
 
 import { jwtDecode } from "jwt-decode";
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  nome: string;
+  sobrenome: string;
+}
+
 interface LoginFormProps {
-  onLogin: (userData: { nome: string; sobrenome: string; }) => void;
+  onLogin: (userData: User) => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
@@ -45,6 +53,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         }));
 
         onLogin({
+          id: decoded.id || 0,
+          name: decoded.nome || '',
+          email: decoded.email || '',
           nome: decoded.nome,
           sobrenome: decoded.sobrenome
         });
