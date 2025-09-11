@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-warehouse_router = APIRouter(prefix='/warehouse')
+warehouse_router = APIRouter(prefix='/almoxarifado')
 
 # --- Endpoint Protegido de Exemplo ---
 # @app.get("/users/me")

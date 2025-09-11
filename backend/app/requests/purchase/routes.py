@@ -7,7 +7,7 @@ from typing import Annotated
 from app.schemas import TokenData
 from app.jwt import get_current_user
 
-purchase_router = APIRouter(prefix='/purchase')
+purchase_router = APIRouter(prefix='/compras')
 
 @purchase_router.get("", summary="Retorna as solicitações de compras")
 async def get_purchase_requests(
@@ -67,15 +67,16 @@ async def get_purchase_requests(
          params["dataFim"] = dataFim
 
       
-      from app.main import protheus_auth
-      # O método request do  autenticador cuida de tudo.
-      api_response_data = await protheus_auth.request(
-         method="GET",
-         url=f"{protheus_auth.auth_url}/wsrestsc1/buscarsolicitacao",
-         params=params
-      )
+      # from app.main import protheus_auth
+      # # O método request do  autenticador cuida de tudo.
+      # api_response_data = await protheus_auth.request(
+      #    method="GET",
+      #    url=f"{protheus_auth.auth_url}/wsrestsc1/buscarsolicitacao",
+      #    params=params
+      # )
       
-      return api_response_data
+      # return api_response_data
+      return JSONResponse(content={"message": "Endpoint de solicitações de compra funcionando!"})   
    
    except httpx.HTTPStatusError as e:
       # Erro que persistiu mesmo após a tentativa de renovação

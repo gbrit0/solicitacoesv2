@@ -48,6 +48,7 @@ async def login_for_access_token(
                params=params,
                timeout=10.0
          )
+         # print(response.text)
          # Lança uma exceção para respostas de erro (4xx ou 5xx)
          response.raise_for_status()
       

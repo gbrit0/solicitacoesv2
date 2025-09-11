@@ -59,8 +59,6 @@ Este projeto implementa o backend de um sistema de solicitações, atuando como 
 
 O backend depende das variáveis de ambiente exemplo em [`.env.example`](app/.env.example)
 
-
-
 ## Dependências
 
 Principais bibliotecas utilizadas (ver `requirements.txt` para lista completa):

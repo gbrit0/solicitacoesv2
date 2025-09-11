@@ -114,5 +114,3 @@ class ProtheusAuthenticator:
          except Exception as e:
             raise HTTPException(status_code=500, detail=f"Erro ao decodificar JSON: {str(e)}")
          return JSONResponse(content=data)
-
-
