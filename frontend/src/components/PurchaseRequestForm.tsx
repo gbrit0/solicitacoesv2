@@ -18,6 +18,7 @@ import IListaDeSolicitacoes from '@/interfaces/IListaDeSolicitacoes';
 import http from '@/http/index';
 
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getDate } from 'date-fns';
 
 interface User {
   id: number;
@@ -47,9 +48,12 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
 
   // NOVO: Extrai os dados da solicitação para editar. Se não houver, será 'undefined'.
   const requestToEdit = location.state?.requestData;
-
+  
   // NOVO: Define se o formulário está em modo de edição
   const isEditMode = Boolean(requestToEdit);
+  if (isEditMode){
+    console.log(requestToEdit)
+  }
 
   // Função para obter a data padrão (hoje + 15 dias)
   const getDefaultDate = () => {
@@ -58,8 +62,14 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
     return today.toISOString().split("T")[0]; // formata para YYYY-MM-DD
   };
 
-  const [items, setItems] = useState<Item[]>([
-    { product: '', quantity: '', needDate: getDefaultDate(), costCenter: '', observations: '', apportionment: '' }
+  const [items, setItems] = useState<IListaDeSolicitacoes[]>([
+    { 
+        requestDate: Date(), 
+        quantity: '', 
+        needDate: getDefaultDate(), 
+        costCenter: '', 
+        observations: '', 
+        apportionment: '' }
   ]);
   const [loading, setLoading] = useState(false);
 
@@ -90,8 +100,6 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
         });
       }
     };
-    
-  
 
     const fecthRateios = async () => {
       try {
@@ -194,6 +202,11 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
           },
           body: JSON.stringify(requestData),
         });
+        response = http.post('/solicitacoes/compras', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          }
+        })
       }
 
       if (response.ok) {
@@ -219,17 +232,17 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
   };
 
   const productOptions = produtos.map(p => ({
-    value: p.codigo,
+    value: p.sb1_recno,
     label: p.produto,
   }));
   
   const rateiosOptions = rateios.map(p => ({
-    value: p.recno,
-    label: p.rateio,
+    value: p.rateio,
+    label: p.descricao,
   }));
   
   const centroDeCustoOptions = centrosDeCusto.map(p => ({
-    value: p.recno,
+    value: p.ctt_recno,
     label: p.centro_de_custo,
   }));
 
@@ -240,7 +253,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
           <CardTitle className="flex items-center space-x-2">
             <ShoppingCart className="h-5 w-5 text-blue-600" />
             <span>
-              {isEditMode ? `Editando Solicitação #${requestToEdit.solicitacao}` : 'Nova Solicitação de Compras'}
+              {isEditMode ? `Editando Solicitação #${requestToEdit.sc}` : 'Nova Solicitação de Compras'}
             </span>
           </CardTitle>
         </CardHeader>
@@ -252,7 +265,6 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
 
                   <div className="grid grid-cols-1 md:grid-cols-11 md:col-span-11 gap-4">
 
-                    {/* 3. USO CORRETO: O componente Select agora funcionará como esperado */}
                     <div className="md:col-span-7 space-y-2">
                       <Label htmlFor={`product-${idx}`}>Produto/Serviço</Label>
                       <Select
@@ -300,14 +312,14 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
                     <div className="md:col-span-4 space-y-2">
                       <Label htmlFor={`costCenter-${idx}`}>Centro de Custo</Label>
                       <Select
-                        inputId={`product-${idx}`}
+                        inputId={`costCenter-${idx}`}
                         name="costCenter"
                         options={centroDeCustoOptions}
-                        value={centroDeCustoOptions.find(opt => opt.value === item.product) || null}
+                        value={centroDeCustoOptions.find(opt => opt.value === item.costCenter) || null} // Use item.costCenter
                         onChange={(selectedOption) =>
                           setItems((prev) =>
                             prev.map((it, i) =>
-                              i === idx ? { ...it, product: selectedOption?.value || "" } : it
+                              i === idx ? { ...it, costCenter: selectedOption?.value || "" } : it // Mude costCenter
                             )
                           )
                         }
@@ -320,21 +332,21 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
                     <div className="md:col-span-4 space-y-2">
                       <Label htmlFor={`apportionment-${idx}`}>Rateio</Label>
                       <Select
-                        inputId={`product-${idx}`}
+                        inputId={`apportionment-${idx}`}
                         name="apportionment"
                         options={rateiosOptions}
-                        value={rateiosOptions.find(opt => opt.value === item.product) || null}
+                        value={rateiosOptions.find(opt => opt.value === item.apportionment) || null} // Use item.apportionment
                         onChange={(selectedOption) =>
                           setItems((prev) =>
                             prev.map((it, i) =>
-                              i === idx ? { ...it, product: selectedOption?.value || "" } : it
+                              i === idx ? { ...it, apportionment: selectedOption?.value || "" } : it // Mude apportionment
                             )
                           )
                         }
-                        placeholder="Selecione ou pesquise um centro de custos..."
+                        placeholder="Selecione ou pesquise um rateio..."
                         isClearable
                         isSearchable
-                        noOptionsMessage={() => "Nenhum centro de custo encontrado"}
+                        noOptionsMessage={() => "Nenhum rateio encontrado"}
                       />
                     </div>
                     <div className="md:col-span-3 space-y-2">
@@ -371,6 +383,7 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
             <div className="flex justify-end space-x-4 pt-4">
               <Button type="button" variant="ghost" onClick={() => {
                 setItems([{ product: '', quantity: '', needDate: getDefaultDate(), costCenter: '', observations: '', apportionment: '' }]);
+                // setItems(isEditMode ? requestToEdit : [{ product: '', quantity: '', needDate: getDefaultDate(), costCenter: '', observations: '', apportionment: '' }]);
               }}>
                 Cancelar
               </Button>
@@ -381,7 +394,8 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
               >
                 {loading 
                   ? (isEditMode ? 'Salvando...' : 'Enviando...') 
-                  : (isEditMode ? 'Salvar Alterações' : 'Criar Solicitação')}
+                  : (isEditMode ? 'Salvar Alterações' : 'Criar Solicitação')
+                }
               </Button>
             </div>
           </form>

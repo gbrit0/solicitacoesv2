@@ -1,4 +1,4 @@
 export default interface ICentroDeCusto {
-  recno: string;
+  ctt_recno: string;
   centro_de_custo: string;
 }

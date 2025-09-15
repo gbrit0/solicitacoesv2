@@ -1,4 +1,4 @@
 export default interface IProduto {
-  codigo: string;
+  sb1_recno: string;
   produto: string;
 }

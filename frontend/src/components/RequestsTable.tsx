@@ -69,19 +69,34 @@ const RequestsTable: React.FC = () => {
     if (filters.user) {
       filtered = filtered.filter(req => req.requester.toLowerCase().includes(filters.user.toLowerCase()));
     }
-    // Filtro por status
+    // 1. Crie uma lista "nivelada" de todos os itens de compra
+    const allItems = requests.flatMap(request =>
+      request.items.map(item => ({
+        ...item,
+        sc: request.sc,
+        requester: request.requester,
+      }))
+    );
+
+    let filteredItems = allItems;
+
+    // 2. Filtro por status
     if (filters.status && filters.status !== 'todos') {
-      filtered = filtered.filter(req => req.status === filters.status);
+      filteredItems = filteredItems.filter(item => item.status === filters.status);
     }
 
-    // Filtro por termo de pesquisa
+    // 3. Filtro por termo de pesquisa
     if (searchTerm) {
-      filtered = filtered.filter(req => 
-        req.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        String(req.solicitacao).includes(searchTerm) ||
-        String(req.requester).toLowerCase().includes(searchTerm.toLowerCase())
+      const lowercasedSearchTerm = searchTerm.toLowerCase();
+      filteredItems = filteredItems.filter(item =>
+        item.product.toLowerCase().includes(lowercasedSearchTerm) ||
+        String(item.sc).includes(searchTerm) || // sc é string em IListaDeSolicitacoes, mas você o converte para string
+        String(item.requester).toLowerCase().includes(lowercasedSearchTerm)
       );
     }
+
+// O resultado 'filteredItems' agora contém apenas os itens que correspondem aos filtros
+// Você pode usá-lo para a paginação e renderização da tabela.
 
     setFilteredRequests(filtered);
   }, [requests, filters, searchTerm]);
@@ -91,7 +106,7 @@ const RequestsTable: React.FC = () => {
   const handleEdit = (request: IListaDeSolicitacoes) => {
     toast({
       title: "Editar Solicitação",
-      description: `Editando solicitação ${request.solicitacao}`,
+      description: `Editando solicitação ${request.sc}`,
     });
     navigate('/solicitacao_de_compra', {
       state: { requestData: request }
@@ -99,10 +114,10 @@ const RequestsTable: React.FC = () => {
   };
 
   const handleDelete = (request: IListaDeSolicitacoes) => {
-    setRequests(prev => prev.filter(req => req.solicitacao !== request.solicitacao));
+    setRequests(prev => prev.filter(req => req.sc !== request.sc));
     toast({
       title: "Solicitação Excluída",
-      description: `Solicitação ${request.solicitacao} foi excluída com sucesso.`,
+      description: `Solicitação ${request.sc} foi excluída com sucesso.`,
     });
   };
 
@@ -131,7 +146,7 @@ const RequestsTable: React.FC = () => {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 10;
 
   // Calcula o número total de páginas
   const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
@@ -244,7 +259,8 @@ const RequestsTable: React.FC = () => {
               <thead>
                 <tr className="border-b bg-gray-50">
                   <th className="text-left p-3 font-medium">Status</th>
-                  <th className="text-left p-3 font-medium">ID</th>
+                  <th className="text-left p-3 font-medium">SC</th>
+                  <th className="text-left p-3 font-medium">Item</th>
                   <th className="text-left p-3 font-medium">Solicitante</th>
                   <th className="text-left p-3 font-medium">Produto</th>
                   <th className="text-left p-3 font-medium">Quantidade</th>
@@ -256,48 +272,52 @@ const RequestsTable: React.FC = () => {
               <tbody>
                 {/* ALTERADO: Mapeie 'paginatedRequests' em vez de 'filteredRequests' */}
                 {paginatedRequests.map((request) => (
-                  <tr key={request.solicitacao} className="border-b hover:bg-gray-50">
-                    <td className="p-3">
-                      <div className={`w-4 h-4 rounded-full ${getStatusColor(request.status)}`} title={request.status}></div>
-                    </td>
-                    <td className="p-3 font-mono">{request.solicitacao}</td>
-                    <td className="p-3">{request.requester}</td>
-                    <td className="p-3">{request.product}</td>
-                    <td className="p-3">{request.quantity}</td>
-                    <td className="p-3">{request.needDate}</td>
-                    <td className="p-3">{request.observations}</td>
-                    <td className="p-3">
-                      <div className="flex space-x-2">
-                        {/* <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(request.id)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button> */}
-                        <Button // Somente editar solicitações pendentes
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(request)} // Passe o objeto 'request' inteiro
-                          className="h-8 w-8 p-0"
-                          // Adicione a lógica de disabled aqui
-                          disabled={request.status !== 'Solicitação Pendente'}
+                  request.items.map((item) => (
+
+                    <tr key={item.recno} className="border-b hover:bg-gray-50">
+                      <td className="p-3">
+                        <div className={`w-4 h-4 rounded-full ${getStatusColor(item.status)}`} title={item.status}></div>
+                      </td>
+                      <td className="p-3 font-mono">{request.sc}</td>
+                      <td className="p-3 font-mono">{item.item}</td>
+                      <td className="p-3">{request.requester}</td>
+                      <td className="p-3">{item.product}</td>
+                      <td className="p-3">{item.quantity}</td>
+                      <td className="p-3">{item.needDate}</td>
+                      <td className="p-3">{item.observations}</td>
+                      <td className="p-3">
+                        <div className="flex space-x-2">
+                          {/* <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(request.id)}
+                            className="h-8 w-8 p-0"
                           >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(request)}
-                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                          disabled={request.status !== 'Solicitação Pendente'}
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
+                            <Edit className="h-4 w-4" />
+                          </Button> */}
+                          <Button // Somente editar solicitações pendentes
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(request)} // Passe o objeto 'request' inteiro
+                            className="h-8 w-8 p-0"
+                            // Adicione a lógica de disabled aqui
+                            disabled={item.status !== 'Solicitação Pendente'}
+                            >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDelete(request)}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                            disabled={item.status !== 'Solicitação Pendente'}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
                 ))}
               </tbody>
             </table>
