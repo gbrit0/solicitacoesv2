@@ -177,3 +177,5 @@ pyrightconfig.json
 
 j.json
 testGLPI.py
+converterSqlParaJson.py
+solicitacoes.json

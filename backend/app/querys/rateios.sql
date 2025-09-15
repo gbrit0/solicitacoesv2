@@ -1,0 +1,7 @@
+SELECT DISTINCT
+   CTJ_RATEIO as rateio,
+   TRIM(CTJ_DESC) AS descricao
+FROM CTJ010
+WHERE 
+   D_E_L_E_T_ <> '*'
+   AND CTJ_FILIAL = '0101'

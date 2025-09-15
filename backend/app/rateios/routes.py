@@ -28,128 +28,128 @@ async def get_rateios_requests(
 
       content = [
          {
-            "cod_rateio": 1,
-            "rateio": "000001 - TODOS VEICULOS"
+            "rateio": 1,
+            "descricao": "TODOS VEICULOS"
          },
          {
-            "cod_rateio": 2,
-            "rateio": "000002 - RATEIO CARRETAS"
+            "rateio": 2,
+            "descricao": "RATEIO CARRETAS"
          },
          {
-            "cod_rateio": 3,
-            "rateio": "000003 - STRADAS"
+            "rateio": 3,
+            "descricao": "STRADAS"
          },
          {
-            "cod_rateio": 4,
-            "rateio": "000004 - CAMINHOES"
+            "rateio": 4,
+            "descricao": "CAMINHOES"
          },
          {
-            "cod_rateio": 5,
-            "rateio": "000005 - ENERGIA ELÉTRICA (AREA 1)"
+            "rateio": 5,
+            "descricao": "ENERGIA ELÉTRICA (AREA 1)"
          },
          {
-            "cod_rateio": 6,
-            "rateio": "000006 - ENERGIA ELÉTRICA (AREA 2) MATRIZ"
+            "rateio": 6,
+            "descricao": "ENERGIA ELÉTRICA (AREA 2) MATRIZ"
          },
          {
-            "cod_rateio": 7,
-            "rateio": "000007 - CLOUD"
+            "rateio": 7,
+            "descricao": "CLOUD"
          },
          {
-            "cod_rateio": 8,
-            "rateio": "000008 - MEU RH"
+            "rateio": 8,
+            "descricao": "MEU RH"
          },
          {
-            "cod_rateio": 9,
-            "rateio": "000009 - ACESSO PROTHEUS"
+            "rateio": 9,
+            "descricao": "ACESSO PROTHEUS"
          },
          {
-            "cod_rateio": 10,
-            "rateio": "000010 - MANUTENÇÃO DE ATIVOS"
+            "rateio": 10,
+            "descricao": "MANUTENÇÃO DE ATIVOS"
          },
          {
-            "cod_rateio": 11,
-            "rateio": "000011 - MEDICINA DO TRABALHO"
+            "rateio": 11,
+            "descricao": "MEDICINA DO TRABALHO"
          },
          {
-            "cod_rateio": 12,
-            "rateio": "000012 - RENTAL"
+            "rateio": 12,
+            "descricao": "RENTAL"
          },
          {
-            "cod_rateio": 13,
-            "rateio": "000013 - TRANSMITE"
+            "rateio": 13,
+            "descricao": "TRANSMITE"
          },
          {
-            "cod_rateio": 14,
-            "rateio": "000014 - CHECKLIST"
+            "rateio": 14,
+            "descricao": "CHECKLIST"
          },
          {
-            "cod_rateio": 15,
-            "rateio": "000015 - BACKOFFICE DE VENDAS"
+            "rateio": 15,
+            "descricao": "BACKOFFICE DE VENDAS"
          },
          {
-            "cod_rateio": 16,
-            "rateio": "000016 - FEEDZ"
+            "rateio": 16,
+            "descricao": "FEEDZ"
          },
          {
-            "cod_rateio": 17,
-            "rateio": "000017 - CUSTO/EST/PCP"
+            "rateio": 17,
+            "descricao": "CUSTO/EST/PCP"
          },
          {
-            "cod_rateio": 18,
-            "rateio": "000018 - FAT/SESMT/DP"
+            "rateio": 18,
+            "descricao": "FAT/SESMT/DP"
          },
          {
-            "cod_rateio": 19,
-            "rateio": "000019 - INTERNET ALGAR"
+            "rateio": 19,
+            "descricao": "INTERNET ALGAR"
          },
          {
-            "cod_rateio": 20,
-            "rateio": "000020 - INTERNET VELOMAX"
+            "rateio": 20,
+            "descricao": "INTERNET VELOMAX"
          },
          {
-            "cod_rateio": 21,
-            "rateio": "000021 - TELEFONIA FIREWALL ALGAR"
+            "rateio": 21,
+            "descricao": "TELEFONIA FIREWALL ALGAR"
          },
          {
-            "cod_rateio": 22,
-            "rateio": "000022 - CONTROLE DE ACESSO - PONTO ELETRÔNICO"
+            "rateio": 22,
+            "descricao": "CONTROLE DE ACESSO - PONTO ELETRÔNICO"
          },
          {
-            "cod_rateio": 23,
-            "rateio": "000023 - CONTROLE DE ACESSO - CATRACAS / CANCELAS"
+            "rateio": 23,
+            "descricao": "CONTROLE DE ACESSO - CATRACAS / CANCELAS"
          },
          {
-            "cod_rateio": 24,
-            "rateio": "000024 - TELEFONIA - VIVO"
+            "rateio": 24,
+            "descricao": "TELEFONIA - VIVO"
          },
          {
-            "cod_rateio": 25,
-            "rateio": "000025 - FAT LOCAÇÃO/FAT PAULO"
+            "rateio": 25,
+            "descricao": "FAT LOCAÇÃO/FAT PAULO"
          },
          {
-            "cod_rateio": 26,
-            "rateio": "000026 - LOCAÇÃO/MANUTENÇÃO DE ATIVOS"
+            "rateio": 26,
+            "descricao": "LOCAÇÃO/MANUTENÇÃO DE ATIVOS"
          },
          {
-            "cod_rateio": 27,
-            "rateio": "000027 - AGUA/ESGOTO"
+            "rateio": 27,
+            "descricao": "AGUA/ESGOTO"
          },
          {
-            "cod_rateio": 28,
-            "rateio": "000028 - AGUA/ESGOTO (AREA 1)"
+            "rateio": 28,
+            "descricao": "AGUA/ESGOTO (AREA 1)"
          },
          {
-            "cod_rateio": 32,
-            "rateio": "000032 - SERVICO CLARO INTERNET"
+            "rateio": 32,
+            "descricao": "SERVICO CLARO INTERNET"
          },
          {
-            "cod_rateio": 33,
-            "rateio": "000033 - LIMPEZA ELITE"
+            "rateio": 33,
+            "descricao": "LIMPEZA ELITE"
          },
          {
-            "cod_rateio": 34,
-            "rateio": "000034 - ALIMENTAÇÃO DE COLABORADORES"
+            "rateio": 34,
+            "descricao": "ALIMENTAÇÃO DE COLABORADORES"
          }
       ]
       
