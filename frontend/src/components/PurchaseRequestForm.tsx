@@ -14,6 +14,7 @@ import IRateio from '@/interfaces/IRateio';
 import ICentroDeCusto from '@/interfaces/ICentroDeCusto';
 
 import IListaDeSolicitacoes from '@/interfaces/IListaDeSolicitacoes';
+import IItemDeCompra from '@/interfaces/IItemDeCompra';
 
 import http from '@/http/index';
 
@@ -30,15 +31,6 @@ interface User {
 
 interface PurchaseRequestFormProps {
   user: User;
-}
-
-interface Item {
-  product: string; // Armazenaremos o 'codigo' do produto aqui
-  quantity: string;
-  needDate: string;
-  costCenter: string;
-  observations: string;
-  apportionment: string;
 }
 
 const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
@@ -64,12 +56,24 @@ const PurchaseRequestForm: React.FC<PurchaseRequestFormProps> = ({ user }) => {
 
   const [items, setItems] = useState<IListaDeSolicitacoes[]>([
     { 
-        requestDate: Date(), 
-        quantity: '', 
-        needDate: getDefaultDate(), 
-        costCenter: '', 
-        observations: '', 
-        apportionment: '' }
+        requestDate: new Date().toISOString(), 
+        requester: '',
+        sc: '',
+        items: [
+          {
+            recno: null,
+            item: '',
+            status: '',
+            product: '',
+            quantity: null,
+            needDate: getDefaultDate(),
+            observations: '',
+            costCenter: '',
+            apportionment: ''
+          },
+        ]
+
+     }
   ]);
   const [loading, setLoading] = useState(false);
 

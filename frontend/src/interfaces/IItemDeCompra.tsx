@@ -1,5 +1,5 @@
 export default interface IItemDeCompra {
-  recno: string;
+  recno: number;
   item: string;
   status: string;
   product: string;
