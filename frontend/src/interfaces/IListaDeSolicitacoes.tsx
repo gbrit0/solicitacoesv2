@@ -14,4 +14,5 @@ export default interface IListaDeSolicitacoes {
   needDate: Date;
   observations: string;
   status: string;
+  delete: string;
  }

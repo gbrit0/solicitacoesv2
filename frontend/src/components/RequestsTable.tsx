@@ -139,6 +139,9 @@ const RequestsTable: React.FC = () => {
   };
 
   const handleDelete = (request: IListaDeSolicitacoes) => {
+    
+    // Adicionei o campo de deleção à interface de lista de solicitaçõe, quando implementar a lógica de delete marcar o campo com '*'
+
     setRequests(prev => prev.filter(req => req.sc1_recno !== request.sc1_recno));
     toast({
       title: "Solicitação Excluída",
