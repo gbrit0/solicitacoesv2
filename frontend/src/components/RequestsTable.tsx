@@ -59,48 +59,13 @@ const RequestsTable: React.FC = () => {
         })
       }
     }
-    // Simular dados das solicitações
-    // const mockRequests: Request[] = [
-    //   {
-    //     id: '076477',
-    //     type: 'compras',
-    //     status: 'pendente',
-    //     requester: 'Gabriel Brito Ribeiro',
-    //     product: 'COXIM R-073',
-    //     quantity: 23,
-    //     requestDate: '09/04/2025',
-    //     needDate: '24/04/2025',
-    //     observations: 'Teste',
-    //     issueDate: '09/04/2025'
-    //   },
-    //   {
-    //     id: '076478',
-    //     type: 'almoxarifado',
-    //     status: 'aprovado',
-    //     requester: 'Gabriel Brito Ribeiro',
-    //     product: 'TERMINAL DE COMPRESSAO 70MM',
-    //     quantity: 54,
-    //     requestDate: '09/04/2025',
-    //     needDate: '24/04/2025',
-    //     observations: 'Teste',
-    //     issueDate: '09/04/2025'
-    //   },
-    //   {
-    //     id: '076479',
-    //     type: 'compras',
-    //     status: 'rejeitado',
-    //     requester: 'Gabriel Brito Ribeiro',
-    //     product: 'CURVA 90° ACO CARB SOLDAVEL 4"',
-    //     quantity: 2,
-    //     requestDate: '09/04/2025',
-    //     needDate: '30/04/2025',
-    //     observations: 'Teste',
-    //     issueDate: '09/04/2025'
-    //   }
-    // ];
     
     fetchSolicitacoes();
   }, [toast]);
+
+  useEffect(() => {
+    setCurrentPage(1); // Volta para a página 1 quando os filtros mudam
+  }, [filters, searchTerm]);
 
   useEffect(() => {
     let filtered = requests;
@@ -116,27 +81,60 @@ const RequestsTable: React.FC = () => {
     if (filters.user) {
       filtered = filtered.filter(req => req.requester.toLowerCase().includes(filters.user.toLowerCase()));
     }
-    // Filtro por status
+    // 1. Crie uma lista "nivelada" de todos os itens de compra
+    // const allItems = requests.flatMap(request =>
+    //   request.items.map(item => ({
+    //     ...item,
+    //     sc: request.sc,
+    //     requester: request.requester,
+    //   }))
+    // );
+
+    // 2. Filtro por status
     if (filters.status && filters.status !== 'todos') {
-      filtered = filtered.filter(req => req.status === filters.status);
+      filtered = filtered.filter(item => item.status === filters.status);
     }
 
-    // Filtro por termo de pesquisa
+    // 3. Filtro por termo de pesquisa
     if (searchTerm) {
-      filtered = filtered.filter(req => 
-        req.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.sc.includes(searchTerm) ||
-        req.requester.toLowerCase().includes(searchTerm.toLowerCase())
+      const lowercasedSearchTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter(item =>
+        item.product.toLowerCase().includes(lowercasedSearchTerm) ||
+        String(item.sc).includes(searchTerm) || // sc é string em IListaDeSolicitacoes, mas você o converte para string
+        String(item.requester).toLowerCase().includes(lowercasedSearchTerm)
       );
     }
+
+// O resultado 'filteredItems' agora contém apenas os itens que correspondem aos filtros
+// Você pode usá-lo para a paginação e renderização da tabela.
 
     setFilteredRequests(filtered);
   }, [requests, filters, searchTerm]);
 
-  const handleEdit = (id: string) => {
+  // const navigate = useNavigate();
+  
+  // const handleEdit = (request: IListaDeSolicitacoes) => {
+  //   toast({
+  //     title: "Editar Solicitação",
+  //     description: `Editando solicitação ${request.sc}`,
+  //   });
+  //   navigate('/solicitacao_de_compra', {
+  //     state: { requestData: request }
+  //   });
+  // };
+
+  // const handleDelete = (request: IListaDeSolicitacoes) => {
+  //   setRequests(prev => prev.filter(req => req.sc !== request.sc));
+  //   toast({
+  //     title: "Solicitação Excluída",
+  //     description: `Solicitação ${request.sc} foi excluída com sucesso.`,
+  //   });
+  // };
+
+  const handleEdit = (request: IListaDeSolicitacoes) => {
     toast({
       title: "Editar Solicitação",
-      description: `Editando solicitação ${id}`,
+      description: `Editando solicitação ${request.sc}`,
     });
   };
 
@@ -171,6 +169,20 @@ const RequestsTable: React.FC = () => {
       default: return 'bg-gray-500';
     }
   };
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  // Calcula o número total de páginas
+  const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
+
+  // Calcula o índice inicial e final dos itens para a página atual
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+
+  // Cria um novo array com apenas os itens da página atual
+  const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
+
 
   return (
     <div className="space-y-6">
@@ -220,9 +232,16 @@ const RequestsTable: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="pendente">Pendente</SelectItem>
-                  <SelectItem value="aprovado">Aprovado</SelectItem>
-                  <SelectItem value="rejeitado">Rejeitado</SelectItem>
+                  <SelectItem value="Solicitação Bloqueada">Solicitação Bloqueada</SelectItem>
+                  <SelectItem value="Solicitação Pendente">Solicitação Pendente</SelectItem>
+                  <SelectItem value="Solicitação Totalmente Atendida">Solicitação Totalmente Atendida</SelectItem>
+                  <SelectItem value="Solicitação Parcialmente Atendida Utilizada em Cotação">Solicitação Parcialmente Atendida Utilizada em Cotação</SelectItem>
+                  <SelectItem value="Solicitação Parcialmente Atendida">Solicitação Parcialmente Atendida</SelectItem>
+                  <SelectItem value="Solicitação em Processo de Cotação">Solicitação em Processo de Cotação</SelectItem>
+                  <SelectItem value="Solicitação de Produto Importado">Solicitação de Produto Importado</SelectItem>
+                  <SelectItem value="Elim. por Resíduo">Elim. por Resíduo</SelectItem>
+                  <SelectItem value="Solicitação Rejeitada">Solicitação Rejeitada</SelectItem>
+                  <SelectItem value="Solicitação em Compra Centralizada">Solicitação em Compra Centralizada</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -277,7 +296,7 @@ const RequestsTable: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredRequests.map((request) => (
+                {paginatedRequests.map((request) => (
                   <tr key={request.sc1_recno} className="border-b hover:bg-gray-50">
                     <td className="p-3">
                       <div className={`w-4 h-4 rounded-full ${getStatusColor(request.status)}`} title={request.status}></div>
@@ -297,22 +316,33 @@ const RequestsTable: React.FC = () => {
                     <td className="p-3">{request.needDate.toString()}</td>
                     <td className="p-3">
                       <div className="flex space-x-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(request.sc)}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(request)}
-                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
+                        {/* <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(request.id)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button> */}
+                          <Button // Somente editar solicitações pendentes
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(request)} // Passe o objeto 'request' inteiro
+                            className="h-8 w-8 p-0"
+                            // Adicione a lógica de disabled aqui
+                            disabled={request.status !== 'Solicitação Pendente'}
+                            >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDelete(request)}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                            disabled={request.status !== 'Solicitação Pendente'}
+                          >
+                            <Trash className="h-4 w-4" />
+                          </Button>
                       </div>
                     </td>
                   </tr>
@@ -328,11 +358,31 @@ const RequestsTable: React.FC = () => {
           )}
 
           <div className="mt-4 flex justify-between items-center text-sm text-gray-600">
-            <span>Mostrando {filteredRequests.length} de {requests.length} registros</span>
+            <span>Mostrando {paginatedRequests.length} de {filteredRequests.length} registros</span>
             <div className="flex space-x-2">
-              <Button variant="outline" size="sm" disabled>Anterior</Button>
+              {/* <Button variant="outline" size="sm" disabled>Anterior</Button>
               <Button variant="outline" size="sm" className="bg-blue-600 text-white">1</Button>
-              <Button variant="outline" size="sm" disabled>Próximo</Button>
+              <Button variant="outline" size="sm" disabled>Próximo</Button> */}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </Button>
+              
+              {/* Mostra o número da página atual e o total de páginas */}
+              <span>Página {currentPage} de {totalPages > 0 ? totalPages : 1}</span>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                disabled={currentPage === totalPages || totalPages === 0}
+              >
+                Próximo
+              </Button>
             </div>
           </div>
         </CardContent>
