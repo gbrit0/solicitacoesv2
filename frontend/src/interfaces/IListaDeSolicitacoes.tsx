@@ -1,10 +1,17 @@
 export default interface IListaDeSolicitacoes {
-  id: string;
-  status: string;
   requester: string;
+  requestDate: Date;
+  sc1_recno: number;
+  sc: string;
+  item: string;
+  sb1_recno: number;
   product: string;
   quantity: number;
-  requestDate: string;
-  needDate: string;
+  ctt_recno: number;
+  costCenter: string;
+  // ctj_recno: number;
+  // apportionment: string;
+  needDate: Date;
   observations: string;
+  status: string;
  }
