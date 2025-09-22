@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import IListaDeSolicitacoes from '@/interfaces/IListaDeSolicitacoes';
 
 import http from '@/http/index';
+import { useNavigate } from 'react-router-dom';
 
 // interface Request {
 //   id: string;
@@ -111,32 +112,24 @@ const RequestsTable: React.FC = () => {
     setFilteredRequests(filtered);
   }, [requests, filters, searchTerm]);
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   
-  // const handleEdit = (request: IListaDeSolicitacoes) => {
-  //   toast({
-  //     title: "Editar Solicitação",
-  //     description: `Editando solicitação ${request.sc}`,
-  //   });
-  //   navigate('/solicitacao_de_compra', {
-  //     state: { requestData: request }
-  //   });
-  // };
-
-  // const handleDelete = (request: IListaDeSolicitacoes) => {
-  //   setRequests(prev => prev.filter(req => req.sc !== request.sc));
-  //   toast({
-  //     title: "Solicitação Excluída",
-  //     description: `Solicitação ${request.sc} foi excluída com sucesso.`,
-  //   });
-  // };
-
   const handleEdit = (request: IListaDeSolicitacoes) => {
     toast({
       title: "Editar Solicitação",
       description: `Editando solicitação ${request.sc}`,
     });
+    navigate(`/solicitacao_de_compra/editar/${request.sc}`, {
+      state: { request: request }
+    });
   };
+
+  // const handleEdit = (request: IListaDeSolicitacoes) => {
+  //   toast({
+  //     title: "Editar Solicitação",
+  //     description: `Editando solicitação ${request.sc}`,
+  //   });
+  // };
 
   const handleDelete = (request: IListaDeSolicitacoes) => {
     

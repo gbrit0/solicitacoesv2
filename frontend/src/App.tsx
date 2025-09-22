@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import EditPurchaseRequest from "./pages/EditPurchaseRequest";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Index />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/solicitacao_de_compra/editar/:id" 
+            element={
+              <ProtectedRoute>
+                <EditPurchaseRequest />
               </ProtectedRoute>
             } 
           />
